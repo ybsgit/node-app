@@ -6,7 +6,7 @@ pipeline{
     stage{
         stage('Build docker image'){
             steps{
-                sh 'docker build -t web927/nodeapp:${DOCKER_TAG}'
+                sh 'docker build . -t web927/nodeapp:${DOCKER_TAG}'
 
             }
         }
