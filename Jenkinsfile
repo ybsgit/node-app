@@ -10,6 +10,13 @@ pipeline{
 
             }
         }
+        stage('dockerhub push'){
+            withCredentials([string(credentialsId: 'docker pass', variable: 'dockerHubPwd')]) {
+         sh "docker login -u web927 -p ${dockerHubPwd}"
+         sh "docker push web927/nodeapp:${DOCKER_TAG}"
+           }
+            
+        }
     }
 }
 
