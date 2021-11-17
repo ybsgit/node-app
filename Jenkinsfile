@@ -3,7 +3,7 @@ pipeline{
     environment{
         DOCKER_TAG= getDockerTag()
     }
-    stage{
+    stages{
         stage('Build docker image'){
             steps{
                 sh 'docker build . -t web927/nodeapp:${DOCKER_TAG}'
