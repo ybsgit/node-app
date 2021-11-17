@@ -24,7 +24,7 @@ pipeline{
                 sh "./changeTag.sh ${DOCKER_TAG}"
             sshagent(['sshk8s']) {
                sh "scp -o StrictHostKeyChecking=no services.yml node-app-pod.yml root@10.182.0.33:/root/cicd"
-               sh "ssh -o StrictHostKeyChecking=no root@10.182.0.33 /usr/bin/kubectl apply -f services.yml &&  /usr/bin/kubectl apply -f  node-app-pod.yml"
+               sh "ssh -o StrictHostKeyChecking=no root@10.182.0.33 /usr/bin/kubectl apply -f /root/cicd/services.yml &&  /usr/bin/kubectl apply -f  /root/cicd/node-app-pod.yml"
                 }
             }
         }
