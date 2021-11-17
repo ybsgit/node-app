@@ -25,7 +25,7 @@ pipeline{
             sshagent(['sshk8s']) {
                sh "scp -o StrictHostKeyChecking=no services.yml node-app-pod.yml root@10.182.0.33:/root/cicd"
                script{
-                   sh "ssh -o StrictHostKeyChecking=no root@10.182.0.33 cd /root/cicd && kubectl apply -f . "
+                   sh "ssh -o StrictHostKeyChecking=no root@10.182.0.33 kubectl apply -f services.yml &&  kubectl apply -f  node-app-pod.yml"
                }
                 }
             }
