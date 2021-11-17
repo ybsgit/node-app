@@ -18,13 +18,19 @@ pipeline{
            }
             } 
         }
-        stage(){
+        stage('Deploy to k8s'){
             steps{
                 sh "chmod +x changeTag.sh"
                 sh "./changeTag.sh ${DOCKER_TAG}"
+            sshagent(['sshk8s']) {
+               sh "scp -o StrictHostKeyChecking=no services.yml node-app-pod.yml root@10.182.0.33:/root/"
+               script{
+                   sh "ssh -o StrictHostKeyChecking=no kubectl apply -f ."
+               }
+                }
             }
-            
         }
+
     }
 }
 
