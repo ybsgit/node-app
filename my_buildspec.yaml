@@ -1,0 +1,13 @@
+version: 0.2
+phases:
+  pre_build:
+  # login to ecr repo
+  - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin 069587973569.dkr.ecr.us-east-1.amazonaws.com
+  - DOCKER_TAG = $(echo $CODEBUILD_SOURCE_VERSION | cut -b 1-6)
+  build:
+  # build image
+  - docker build -t node-app .
+  - docker tag node-app:latest $CODEBUILD_WEBHOOK_ACTOR_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/node-app:$DOCKER_TAG
+  post_build:
+  # push image
+  - docker push $CODEBUILD_WEBHOOK_ACTOR_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/node-app:$DOCKER_TAG
