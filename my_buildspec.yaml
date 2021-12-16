@@ -1,13 +1,34 @@
 version: 0.2
+env:
+   variables:
+       REPOSITORY_URI: "069587973569.dkr.ecr.us-east-1.amazonaws.com/node-app"
+       DOCKER_USER: 'web927'
+   parameter-store:
+       DOCKER_PASS: "DOCKER_PASS"
+
 phases:
+
   pre_build:
-  # login to ecr repo
-  - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin 069587973569.dkr.ecr.us-east-1.amazonaws.com
-  - DOCKER_TAG = $(echo $CODEBUILD_SOURCE_VERSION | cut -b 1-6)
+    commands:
+    # login to ecr repo
+      - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin 069587973569.dkr.ecr.us-east-1.amazonaws.com
+      - DOCKER_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -b 1-6)
+      - echo $DOCKER_TAG
   build:
   # build image
-  - docker build -t node-app .
-  - docker tag node-app:latest $CODEBUILD_WEBHOOK_ACTOR_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/node-app:$DOCKER_TAG
+    commands:
+      - echo $DOCKER_USER
+      - echo $DOCKER_PASS
+      - echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin 
+      - docker build -t node-app .
+      - docker tag node-app:latest $REPOSITORY_URI:$DOCKER_TAG
+      - docker tag node-app:latest $REPOSITORY_URI:latest
   post_build:
-  # push image
-  - docker push $CODEBUILD_WEBHOOK_ACTOR_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/node-app:$DOCKER_TAG
+    commands:
+      # push image
+      - docker push $REPOSITORY_URI:$DOCKER_TAG
+      - docker push $REPOSITORY_URI:latest
+      - printf '[{"name":"node-app","imageUri":"%s"}]' $REPOSITORY_URI:$DOCKER_TAG > imagedefinitions.json
+      - cat imagedefinitions.json
+artifacts:
+    files: imagedefinitions.json
